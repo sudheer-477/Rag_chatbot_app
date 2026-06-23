@@ -1,6 +1,7 @@
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+import os
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 from groq import Groq
@@ -22,8 +23,16 @@ st.caption("Upload a PDF and ask questions about it")
 # Initialize models once
 @st.cache_resource
 def load_models():
-    embed_model = SentenceTransformer('all-MiniLM-L6-v2')
-    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    # Works both locally (.env) and on Streamlit Cloud (secrets)
+    api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
+    
+    if not api_key:
+        st.error("GROQ_API_KEY not found. Please set it in Streamlit secrets or .env file.")
+        st.stop()
+    
+    groq_client = Groq(api_key=api_key)
+    embed_model = SentenceTransformer("all-MiniLM-L6-v2")
+    
     return embed_model, groq_client
 
 embed_model, groq_client = load_models()
