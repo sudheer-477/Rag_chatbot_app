@@ -1,3 +1,6 @@
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import streamlit as st
 from sentence_transformers import SentenceTransformer
 from groq import Groq
@@ -7,6 +10,7 @@ import os
 import tempfile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 load_dotenv()
 
