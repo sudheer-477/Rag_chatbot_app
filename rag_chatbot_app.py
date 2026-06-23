@@ -23,11 +23,17 @@ st.caption("Upload a PDF and ask questions about it")
 # Initialize models once
 @st.cache_resource
 def load_models():
-    # Works both locally (.env) and on Streamlit Cloud (secrets)
-    api_key = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
+    # Try .env first, then Streamlit secrets
+    api_key = os.getenv("GROQ_API_KEY")
     
     if not api_key:
-        st.error("GROQ_API_KEY not found. Please set it in Streamlit secrets or .env file.")
+        try:
+            api_key = st.secrets["GROQ_API_KEY"]
+        except Exception:
+            pass
+    
+    if not api_key:
+        st.error("GROQ_API_KEY not found. Please set it in your .env file or Streamlit secrets.")
         st.stop()
     
     groq_client = Groq(api_key=api_key)
